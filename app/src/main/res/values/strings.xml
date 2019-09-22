@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">eMechanic</string>
+    <string name="text_custimer_login">Driver Login</string>
+    <string name="text_driver_login">Mechanic Login</string>
+    <string name="i_am_driver">I am a Driver</string>
+    <string name="i_am_a_mechanic">I am a Mechanic</string>
+    <string name="title_activity_customers_map">Map</string>
+    <string name="title_activity_driver_map">Map</string>
+</resources>

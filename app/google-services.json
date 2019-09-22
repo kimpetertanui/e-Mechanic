@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "88441871449",
+    "firebase_url": "https://ladymaker-385bf.firebaseio.com",
+    "project_id": "ladymaker-385bf",
+    "storage_bucket": "ladymaker-385bf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:88441871449:android:e05edbc09ac37b8f",
+        "android_client_info": {
+          "package_name": "com.peterkimeli.ladymaker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "88441871449-4ebmcjpd38frp52bn7o7jm3ref8ksmm1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.peterkimeli.ladymaker",
+            "certificate_hash": "a46d2c4c3da6b22cfa794c108cbd4d3e2cec4c5d"
+          }
+        },
+        {
+          "client_id": "88441871449-bv9ol2ect5n89r01c498ultup5i8f5vu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyc7-zDhbyN9Fu9Q1iJaUVA6x9KFK997Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "88441871449-bv9ol2ect5n89r01c498ultup5i8f5vu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

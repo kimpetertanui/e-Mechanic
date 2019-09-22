@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">eMechanic</string>
+    <string name="app_name">e-Mechanic</string>
     <string name="text_custimer_login">Driver Login</string>
     <string name="text_driver_login">Mechanic Login</string>
     <string name="i_am_driver">I am a Driver</string>

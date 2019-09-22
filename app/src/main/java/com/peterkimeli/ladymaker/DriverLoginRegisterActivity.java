@@ -2,8 +2,8 @@ package com.peterkimeli.ladymaker;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -40,9 +40,9 @@ public class DriverLoginRegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_driver_login_register);
 
         mAuth=FirebaseAuth.getInstance();
-        onlineDriverID=mAuth.getCurrentUser().getUid();
-        DriverDatabaseRef=FirebaseDatabase.getInstance().getReference().
-                child("Users").child("Customers").child(onlineDriverID);
+//        onlineDriverID=mAuth.getCurrentUser().getUid();
+        //DriverDatabaseRef=FirebaseDatabase.getInstance().getReference().
+             //   child("Users").child("Customers").child(onlineDriverID);
 
 
 

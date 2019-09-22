@@ -4,10 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -38,13 +38,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
+import static com.google.android.gms.common.api.GoogleApiClient.*;
 
-public class DriverMapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
+
+public class DriverMapActivity extends FragmentActivity implements OnMapReadyCallback, ConnectionCallbacks,
+        OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener {
 
     private GoogleMap mMap;
-    //private FusedLocationProviderClient fusedLocationClient;
+    private FusedLocationProviderClient fusedLocationClient;
     GoogleApiClient googleApiClient;
     Location lastLocation;
     LocationRequest locationRequest;
@@ -271,7 +273,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
          protected synchronized void  buildGoogleApiClient()
          {
-        googleApiClient=new GoogleApiClient.Builder(this)
+        googleApiClient=new Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)

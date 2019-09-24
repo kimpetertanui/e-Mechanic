@@ -19,6 +19,8 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -47,8 +49,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.google.android.gms.common.api.GoogleApiClient.*;
 
@@ -78,6 +83,10 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     GeoQuery geoQuery;
     private  ValueEventListener AssignedCustomerPickUpRefListener;
 
+    private TextView txtName, txtPhone;
+    private CircleImageView profilePic;
+    private RelativeLayout relativeLayout;
+
 
 
 
@@ -94,6 +103,11 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         LogoutDriverButton =(Button)findViewById(R.id.logout_driv_btn);
         SettingsDriverButton=(Button)findViewById(R.id.settings_driver_btn);
 
+        txtName = findViewById(R.id.name_customer);
+        txtPhone = findViewById(R.id.phone_customer);
+        profilePic = findViewById(R.id.profile_image_customer);
+        relativeLayout = findViewById(R.id.rel2);
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mFusedLocationClient=LocationServices.getFusedLocationProviderClient(this);
@@ -101,6 +115,16 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                 .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
+
+        SettingsDriverButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(DriverMapActivity.this, SettingsActivity.class);
+                intent.putExtra("type", "Drivers");
+                startActivity(intent);
+            }
+        });
 
 
         LogoutDriverButton.setOnClickListener(new View.OnClickListener() {
@@ -145,7 +169,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     if (AssignedCustomerPickUpRefListener !=null){
                         AssignedCustomerPickUpRef.removeEventListener(AssignedCustomerPickUpRefListener);
                     }
-
+                    relativeLayout.setVisibility(View.GONE);
 
                 }
 
@@ -187,7 +211,9 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                     }
 
                     LatLng DriverLatLng=new LatLng(LocationLat,LocationLng);
-                    mMap.addMarker(new MarkerOptions().position(DriverLatLng).title("Customer Pick Up Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.user)));
+                    mMap.addMarker(new MarkerOptions().position
+                            (DriverLatLng).title("Customer Pick Up Location")
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.user)));
 
                 }
 
@@ -417,6 +443,38 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         startActivity(welcomeIntent);
         finish();
 
+    }
+
+    private void getAssignedCustomerInformation()
+    {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
+                .child("Users").child("Customers").child(customerID);
+
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                if (dataSnapshot.exists()  &&  dataSnapshot.getChildrenCount() > 0)
+                {
+                    String name = dataSnapshot.child("name").getValue().toString();
+                    String phone = dataSnapshot.child("phone").getValue().toString();
+
+                    txtName.setText(name);
+                    txtPhone.setText(phone);
+
+                    if (dataSnapshot.hasChild("image"))
+                    {
+                        String image = dataSnapshot.child("image").getValue().toString();
+                        Picasso.get().load(image).into(profilePic);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
 

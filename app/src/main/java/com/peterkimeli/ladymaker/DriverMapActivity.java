@@ -91,8 +91,8 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         driverID=mAuth.getCurrentUser().getUid();
 
 
-        LogoutDriverButton =(Button)findViewById(R.id.driver_logout_btn);
-        SettingsDriverButton=(Button)findViewById(R.id.driver_settings_btn);
+        LogoutDriverButton =(Button)findViewById(R.id.logout_driv_btn);
+        SettingsDriverButton=(Button)findViewById(R.id.settings_driver_btn);
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

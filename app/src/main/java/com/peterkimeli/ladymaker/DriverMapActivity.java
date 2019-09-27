@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -49,22 +48,25 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.annotations.Nullable;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.google.android.gms.common.api.GoogleApiClient.*;
 
 
-public class DriverMapActivity extends FragmentActivity implements OnMapReadyCallback,
+public class DriverMapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
 
         com.google.android.gms.location.LocationListener {
 
     private GoogleMap mMap;
    // private FusedLocationProviderClient fusedLocationClient;
-   // GoogleApiClient googleApiClient;
+    GoogleApiClient googleApiClient;
     Location lastLocation;
     Location mLastLocation;
     LocationRequest locationRequest;
@@ -109,12 +111,31 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         relativeLayout = findViewById(R.id.rel2);
 
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+//        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+//        mFusedLocationClient=LocationServices.getFusedLocationProviderClient(this);
+//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+//                .findFragmentById(R.id.map);
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(DriverMapActivity.this,new  String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST_CODE);
+//            return;
+//        }
+//     else {
+//            mapFragment.getMapAsync(this);
+//        }
         mFusedLocationClient=LocationServices.getFusedLocationProviderClient(this);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
-        mapFragment.getMapAsync(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(DriverMapActivity.this,new  String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST_CODE);
+            return;
+        }
+        else {
+            mapFragment.getMapAsync(this);
+        }
+//        mapFragment.getMapAsync(this);
+
 
         SettingsDriverButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,7 +157,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                 LogOutDriver();
             }
         });
-
+//        getAssignedCustomerInformation();
         GetAssignedCustomerRequeest();
 
         ///buildGoogleaApiClient();
@@ -155,7 +176,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             {
                 if (dataSnapshot.exists())
                 {
-                    customerID=dataSnapshot.getValue().toString();
+                    customerID= Objects.requireNonNull(dataSnapshot.getValue()).toString();
 
                     GetAssignedCustomerPickUpLocation();
 
@@ -230,26 +251,38 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     }
 
 
+//    @Override
+////    public void onMapReady(GoogleMap googleMap) {
+////        mMap = googleMap;
+////
+////        locationRequest = new LocationRequest();
+////        locationRequest.setInterval(1000);
+////        locationRequest.setFastestInterval(1000);
+////        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+////
+////        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+////            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+////
+////            } else {
+////                checkLocationPermission();
+////            }
+////        }
+////
+////    }
+
     @Override
     public void onMapReady(GoogleMap googleMap)
     {
         mMap = googleMap;
 
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(1000);
-        locationRequest.setFastestInterval(1000);
-        locationRequest.setPriority(locationRequest.PRIORITY_HIGH_ACCURACY);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if (ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
-
-            }
-            else {
-                checkLocationPermission();
-            }
+        // now let set user location enable
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
         }
 
-
+        buildGoogleApiClient();
+        mMap.setMyLocationEnabled(true);
+    }
 //        buildGoogleApiClient();
 //        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 //
@@ -262,7 +295,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 //        LatLng nyeri = new LatLng(-0.4371, 36.9580);
 //        mMap.addMarker(new MarkerOptions().position(nyeri).title("Marker in Nyeri"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(nyeri));
-    }
+
 
 //    LocationCallback mLocationCallback = new  LocationCallback(){
 //        @Override
@@ -337,14 +370,18 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
     }
 
+
+
+    final int LOCATION_REQUEST_CODE=1;
     @Override
     public void onRequestPermissionsResult(int requestCode,@NonNull String[] permissions,@NonNull int[] grantResults){
         super.onRequestPermissionsResult(requestCode,permissions,grantResults);
 
         switch (requestCode){
-            case  1:{
+            case  LOCATION_REQUEST_CODE:{
                 if (grantResults.length > 0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
-//                    mapFragment.getMapAsync(this);
+                    //mapFragment.getMapAsync(this);
+                    mMap.setMyLocationEnabled(true);
 //                    if (ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION ==PackageManager.PERMISSION_GRANTED)){
 //                       // mFusedLocationClient.removeLocationUpdates(locationRequest,mLocationCallback, Looper.myLooper());
 //                        mMap.setMyLocationEnabled(true);
@@ -355,6 +392,8 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                 }
             }
             break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + requestCode);
         }
 
     }
@@ -363,22 +402,25 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
 
 
-//    @Override
-//    public void onConnected(@Nullable Bundle bundle) {
-//        locationRequest = new LocationRequest();
-//        locationRequest.setInterval(1000);
-//        locationRequest.setFastestInterval(1000);
-//        locationRequest.setPriority(locationRequest.PRIORITY_HIGH_ACCURACY);
-//
-//
-//
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//
-//            return;
-//        }
-//        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-//
-//    }
+    public void onConnected(@Nullable Bundle bundle)
+    {
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            //
+
+            return;
+        }
+        //it will handle the refreshment of the location
+        //if we dont call it we will get location only once
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+    }
 //
 //    @Override
 //    public void onConnectionSuspended(int i)
@@ -395,7 +437,25 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     @Override
     public void onLocationChanged(Location location)
     {
+        //getting the updated location
+        lastLocation = location;
 
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+
+    }
+
+    //create this method -- for useing apis
+    protected synchronized void buildGoogleApiClient()
+    {
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this)
+                .addOnConnectionFailedListener((GoogleApiClient.OnConnectionFailedListener) this)
+                .addApi(LocationServices.API)
+                .build();
+
+        googleApiClient.connect();
     }
 
 //         protected synchronized void  buildGoogleApiClient() {
@@ -454,20 +514,25 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                if (dataSnapshot.exists()  &&  dataSnapshot.getChildrenCount() > 0)
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0)
                 {
-                    String name = dataSnapshot.child("name").getValue().toString();
-                    String phone = dataSnapshot.child("phone").getValue().toString();
+                    String name = Objects.requireNonNull(dataSnapshot.child("name").getValue()).toString();
+                    String phone = Objects.requireNonNull(dataSnapshot.child("phone").getValue()).toString();
 
                     txtName.setText(name);
                     txtPhone.setText(phone);
 
                     if (dataSnapshot.hasChild("image"))
                     {
-                        String image = dataSnapshot.child("image").getValue().toString();
+                        String image = Objects.requireNonNull(dataSnapshot.child("image").getValue()).toString();
                         Picasso.get().load(image).into(profilePic);
                     }
                 }
+
+//                else {
+//
+//                    Toast.makeText(DriverMapActivity.this,"No Customer is availble!!!",Toast.LENGTH_SHORT).show();
+//                }
             }
 
             @Override
@@ -478,4 +543,14 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     }
 
 
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
 }

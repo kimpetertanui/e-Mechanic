@@ -1,4 +1,6 @@
 package com.peterkimeli.ladymaker;
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -6,21 +8,20 @@ import android.location.Location;
 //import android.support.annotation.Nullable;
 //import android.support.v4.app.ActivityCompat;
 //import android.support.v4.app.FragmentActivity;
+import android.os.Build;
 import android.os.Bundle;
 //import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.os.Looper;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.firebase.geofire.GeoFire;
@@ -29,13 +30,15 @@ import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -50,21 +53,21 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.annotations.Nullable;
 import com.squareup.picasso.Picasso;
 
-import java.sql.Driver;
 import java.util.HashMap;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class CustomersMapActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks,
+public class CustomersMapActivity extends FragmentActivity implements OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
+
         com.google.android.gms.location.LocationListener{
 
     private GoogleMap mMap;
     GoogleApiClient googleApiClient;
     Location LastLocation;
     LocationRequest locationRequest;
+    private FusedLocationProviderClient mFusedLocationClient;
 
     private Button Logout;
     private Button SettingsButton;
@@ -90,8 +93,7 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
     private TextView txtName, txtPhone, txtCarName;
     private CircleImageView profilePic;
     private RelativeLayout relativeLayout;
-
-
+    private Object LocationCallback;
 
 
     @Override
@@ -121,11 +123,19 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
         relativeLayout = findViewById(R.id.rel1);
 
 
-
+        mFusedLocationClient=LocationServices.getFusedLocationProviderClient(this);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(CustomersMapActivity.this,new  String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST_CODE);
+            return;
+        }
+        else {
+            mapFragment.getMapAsync(this);
+        }
+//        mapFragment.getMapAsync(this);
 
 
 
@@ -188,7 +198,7 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
                         DriverMarker.remove();
                     }
 
-                    CallCabCarButton.setText("Call a Cab");
+                    CallCabCarButton.setText("Call a Mechanic");
                     relativeLayout.setVisibility(View.GONE);
                 }
                 else
@@ -203,7 +213,9 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
                     CustomerPickUpLocation = new LatLng(LastLocation.getLatitude(), LastLocation.getLongitude());
                     PickUpMarker = mMap.addMarker(new MarkerOptions().position(CustomerPickUpLocation).title("My Location").icon(BitmapDescriptorFactory.fromResource(R.drawable.user)));
 
-                    CallCabCarButton.setText("Getting your Driver...");
+                   // Log.i("the values are ..lat ="+ LastLocation.getLatitude(),String.valueOf(LastLocation.getLongitude()));
+
+                    CallCabCarButton.setText("Getting your Mechanic...");
                     getClosetDriverCab();
                 }
             }
@@ -216,6 +228,7 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
     private void getClosetDriverCab()
     {
         GeoFire geoFire = new GeoFire(DriverAvailableRef);
+        //if( pickup.latitude != null &&  pickup.longitude != null && destination.latitude != null && destination.longitude != null)
         geoQuery = geoFire.queryAtLocation(new GeoLocation(CustomerPickUpLocation.latitude, CustomerPickUpLocation.longitude), radius);
         geoQuery.removeAllListeners();
 
@@ -240,7 +253,7 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
 
                     //Show driver location on customerMapActivity
                     GettingDriverLocation();
-                    CallCabCarButton.setText("Looking for Driver Location...");
+                    CallCabCarButton.setText("Looking for Mechanic Location...");
                 }
             }
 
@@ -358,8 +371,93 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
         buildGoogleApiClient();
         mMap.setMyLocationEnabled(true);
     }
+//public void onMapReady(GoogleMap googleMap) {
+//    mMap = googleMap;
+//
+//    locationRequest = new LocationRequest();
+//    locationRequest.setInterval(1000);
+//    locationRequest.setFastestInterval(1000);
+//    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//
+//    if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+//        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+//
+//        }else{
+//            checkLocationPermission();
+//        }
+//    }
+//
+//    mFusedLocationClient.requestLocationUpdates(locationRequest, (com.google.android.gms.location.LocationCallback) mLocationCallback, Looper.myLooper());
+//    mMap.setMyLocationEnabled(true);
+//}
 
+    com.google.android.gms.location.LocationCallback mLocationCallback=new LocationCallback(){
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            for(Location location : locationResult.getLocations()){
+                if(getApplicationContext()!=null){
+                    LastLocation = location;
+
+                    LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+//                    if(!driverFound)
+//                        getClosetDriverCab();
+                }
+            }
+        }
+    };
+
+
+    private void checkLocationPermission() {
+        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                new android.app.AlertDialog.Builder(this)
+                        .setTitle("give permission")
+                        .setMessage("give permission message")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                ActivityCompat.requestPermissions(CustomersMapActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                            }
+                        })
+                        .create()
+                        .show();
+            }
+            else{
+                ActivityCompat.requestPermissions(CustomersMapActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+            }
+        }
+    }
+
+    final int LOCATION_REQUEST_CODE=1;
     @Override
+    public void onRequestPermissionsResult(int requestCode,@NonNull String[] permissions,@NonNull int[] grantResults){
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+
+        switch (requestCode){
+            case  LOCATION_REQUEST_CODE:{
+                if (grantResults.length > 0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                    //mapFragment.getMapAsync(this);
+                    mMap.setMyLocationEnabled(true);
+//                    if (ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION ==PackageManager.PERMISSION_GRANTED)){
+//                       // mFusedLocationClient.removeLocationUpdates(locationRequest,mLocationCallback, Looper.myLooper());
+//                        mMap.setMyLocationEnabled(true);
+//                    }
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"please provide permission",Toast.LENGTH_LONG).show();
+                }
+            }
+            break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + requestCode);
+        }
+
+    }
+
+
     public void onConnected(@Nullable Bundle bundle)
     {
         locationRequest = new LocationRequest();
@@ -385,10 +483,15 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
 
     }
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
+//    @Override
+//    public void onConnectionSuspended(int i) {
+//
+//    }
+//
+//    @Override
+//    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+//
+//    }
 
     @Override
     public void onLocationChanged(Location location)
@@ -406,8 +509,8 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
     protected synchronized void buildGoogleApiClient()
     {
         googleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
+                .addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this)
+                .addOnConnectionFailedListener((GoogleApiClient.OnConnectionFailedListener) this)
                 .addApi(LocationServices.API)
                 .build();
 
@@ -465,4 +568,14 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
             }
         });
     }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+//    @Override
+//    public void onLocationChanged(Location location) {
+//
+//    }
 }

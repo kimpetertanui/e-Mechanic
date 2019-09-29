@@ -152,7 +152,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             @Override
             public void onClick(View v) {
                 currentLogOutDriverStatus=true;
-                DiconnectTheDriver();
+                DisconnectTheDriver();
                 mAuth.signOut();
                 LogOutDriver();
             }
@@ -444,6 +444,12 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
 
+        String UserID=FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference DriverAvailabilityRef =FirebaseDatabase.getInstance().getReference().child("Drivers Available");
+
+        GeoFire geoFire= new GeoFire(DriverAvailabilityRef);
+        geoFire.setLocation(UserID,new GeoLocation(location.getLatitude(),location.getLongitude()));
+
     }
 
     //create this method -- for useing apis
@@ -471,7 +477,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         super.onStop();
         if (!currentLogOutDriverStatus)
         {
-            DiconnectTheDriver();
+            DisconnectTheDriver();
         }
 
      }
@@ -485,7 +491,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
      }
 
-    private void DiconnectTheDriver() {
+    private void DisconnectTheDriver() {
         //LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,this);
         if (mFusedLocationClient !=null){
             mFusedLocationClient.removeLocationUpdates((com.google.android.gms.location.LocationCallback) mLocationCallback);

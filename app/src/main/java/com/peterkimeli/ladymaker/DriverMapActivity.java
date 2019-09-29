@@ -191,6 +191,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                         AssignedCustomerPickUpRef.removeEventListener(AssignedCustomerPickUpRefListener);
                     }
                     relativeLayout.setVisibility(View.GONE);
+                    getAssignedCustomerInformation();
 
                 }
 

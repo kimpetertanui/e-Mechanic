@@ -78,7 +78,7 @@ public class SettingsActivity extends AppCompatActivity
         phoneEditText = findViewById(R.id.phone_number);
 
         driverCarName = findViewById(R.id.driver_car_name);
-        if (getType.equals("Drivers"))
+        if (getType.equals("Mechanics"))
         {
             driverCarName.setVisibility(View.VISIBLE);
         }
@@ -94,7 +94,7 @@ public class SettingsActivity extends AppCompatActivity
             @Override
             public void onClick(View view)
             {
-                if (getType.equals("Drivers"))
+                if (getType.equals("Mechanics"))
                 {
                     startActivity(new Intent(SettingsActivity.this, DriverMapActivity.class));
                 }
@@ -150,7 +150,7 @@ public class SettingsActivity extends AppCompatActivity
         }
         else
         {
-            if (getType.equals("Drivers"))
+            if (getType.equals("Mechanics"))
             {
                 startActivity(new Intent(SettingsActivity.this, DriverMapActivity.class));
             }
@@ -175,7 +175,7 @@ public class SettingsActivity extends AppCompatActivity
         {
             Toast.makeText(this, "Please provide your phone number.", Toast.LENGTH_SHORT).show();
         }
-        else if (getType.equals("Drivers")  &&  TextUtils.isEmpty(driverCarName.getText().toString()))
+        else if (getType.equals("Mechanics")  &&  TextUtils.isEmpty(driverCarName.getText().toString()))
         {
             Toast.makeText(this, "Please provide your car Name.", Toast.LENGTH_SHORT).show();
         }
@@ -230,7 +230,7 @@ public class SettingsActivity extends AppCompatActivity
                         userMap.put("phone", phoneEditText.getText().toString());
                         userMap.put("image", myUrl);
 
-                        if (getType.equals("Drivers"))
+                        if (getType.equals("Mechanics"))
                         {
                             userMap.put("car", driverCarName.getText().toString());
                         }
@@ -239,7 +239,7 @@ public class SettingsActivity extends AppCompatActivity
 
                         progressDialog.dismiss();
 
-                        if (getType.equals("Drivers"))
+                        if (getType.equals("Mechanics"))
                         {
                             startActivity(new Intent(SettingsActivity.this, DriverMapActivity.class));
                         }
@@ -270,7 +270,7 @@ public class SettingsActivity extends AppCompatActivity
         {
             Toast.makeText(this, "Please provide your phone number.", Toast.LENGTH_SHORT).show();
         }
-        else if (getType.equals("Drivers")  &&  TextUtils.isEmpty(driverCarName.getText().toString()))
+        else if (getType.equals("Mechanics")  &&  TextUtils.isEmpty(driverCarName.getText().toString()))
         {
             Toast.makeText(this, "Please provide your car Name.", Toast.LENGTH_SHORT).show();
         }
@@ -281,14 +281,14 @@ public class SettingsActivity extends AppCompatActivity
             userMap.put("name", nameEditText.getText().toString());
             userMap.put("phone", phoneEditText.getText().toString());
 
-            if (getType.equals("Drivers"))
+            if (getType.equals("Mechanics"))
             {
                 userMap.put("car", driverCarName.getText().toString());
             }
 
             databaseReference.child(mAuth.getCurrentUser().getUid()).updateChildren(userMap);
 
-            if (getType.equals("Drivers"))
+            if (getType.equals("Mechanics"))
             {
                 startActivity(new Intent(SettingsActivity.this, DriverMapActivity.class));
             }
@@ -314,7 +314,7 @@ public class SettingsActivity extends AppCompatActivity
                     nameEditText.setText(name);
                     phoneEditText.setText(phone);
 
-                    if (getType.equals("Drivers"))
+                    if (getType.equals("Mechanics"))
                     {
                         String car = dataSnapshot.child("car").getValue().toString();
                         driverCarName.setText(car);

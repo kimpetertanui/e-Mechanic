@@ -108,7 +108,7 @@
                 android:layout_height="50dp"
                 android:layout_alignParentEnd="true"
                 android:layout_marginRight="15dp"
-                android:src="@drawable/ic_edit"
+                android:src="@drawable/ic_done"
                 android:tint="@android:color/white"
                 android:layout_alignParentRight="true" />
 

@@ -78,7 +78,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     private  FirebaseAuth mAuth;
     private FirebaseUser currentUser;
 
-    private  Boolean currentLogOutDriverStatus =false;
+    private  Boolean currentLogOutMechanicstatus =false;
     private  DatabaseReference AssignedCustomerRef,AssignedCustomerPickUpRef;
     private String driverID,customerID="";
     Marker DriverMarker,PickUpMarker;
@@ -142,7 +142,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             public void onClick(View view)
             {
                 Intent intent = new Intent(DriverMapActivity.this, SettingsActivity.class);
-                intent.putExtra("type", "Drivers");
+                intent.putExtra("type", "Mechanics");
                 startActivity(intent);
             }
         });
@@ -151,7 +151,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         LogoutDriverButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentLogOutDriverStatus=true;
+                currentLogOutMechanicstatus=true;
                 DisconnectTheDriver();
                 mAuth.signOut();
                 LogOutDriver();
@@ -167,7 +167,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
     private void GetAssignedCustomerRequeest()
     {
-        AssignedCustomerRef=FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers")
+        AssignedCustomerRef=FirebaseDatabase.getInstance().getReference().child("Users").child("Mechanics")
                 .child(driverID).child("CustomerRideID");
         AssignedCustomerRef.addValueEventListener(new ValueEventListener()
         {
@@ -315,10 +315,10 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
                     String userID= FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-                    DatabaseReference  DriverAvailabilityRef= FirebaseDatabase.getInstance().getReference().child("  Drivers Available");
+                    DatabaseReference  DriverAvailabilityRef= FirebaseDatabase.getInstance().getReference().child("  Mechanics Available");
                     GeoFire geoFireAvailability= new GeoFire(DriverAvailabilityRef);
 
-                    DatabaseReference DriverWorkingRef=FirebaseDatabase.getInstance().getReference().child("Drivers Working");
+                    DatabaseReference DriverWorkingRef=FirebaseDatabase.getInstance().getReference().child("Mechanics Working");
                     GeoFire geoFireWorking= new GeoFire(DriverWorkingRef);
 
                     switch (customerID)
@@ -446,7 +446,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
 
         String UserID=FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference DriverAvailabilityRef =FirebaseDatabase.getInstance().getReference().child("Drivers Available");
+        DatabaseReference DriverAvailabilityRef =FirebaseDatabase.getInstance().getReference().child("Mechanics Available");
 
         GeoFire geoFire= new GeoFire(DriverAvailabilityRef);
         geoFire.setLocation(UserID,new GeoLocation(location.getLatitude(),location.getLongitude()));
@@ -476,7 +476,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
      protected  void onStop(){
         super.onStop();
-        if (!currentLogOutDriverStatus)
+        if (!currentLogOutMechanicstatus)
         {
             DisconnectTheDriver();
         }
@@ -498,7 +498,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             mFusedLocationClient.removeLocationUpdates((com.google.android.gms.location.LocationCallback) mLocationCallback);
         }
         String userID= FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference  DriverAvailabilityRef= FirebaseDatabase.getInstance().getReference().child("  Drivers Available");
+        DatabaseReference  DriverAvailabilityRef= FirebaseDatabase.getInstance().getReference().child("  Mechanics Available");
         GeoFire geoFire= new GeoFire(DriverAvailabilityRef);
         geoFire.removeLocation(userID);
 

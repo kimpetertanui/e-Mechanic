@@ -78,7 +78,7 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
     private LatLng CustomerPickUpLocation;
 
     private DatabaseReference DriverAvailableRef, DriverLocationRef;
-    private DatabaseReference DriversRef;
+    private DatabaseReference MechanicsRef;
     private int radius = 1;
 
     private Boolean driverFound = false, requestType = false;
@@ -107,8 +107,8 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
         currentUser = mAuth.getCurrentUser();
         customerID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         CustomerDatabaseRef = FirebaseDatabase.getInstance().getReference().child("Customer Requests");
-        DriverAvailableRef = FirebaseDatabase.getInstance().getReference().child("Drivers Available");
-        DriverLocationRef = FirebaseDatabase.getInstance().getReference().child("Drivers Working");
+        DriverAvailableRef = FirebaseDatabase.getInstance().getReference().child("Mechanics Available");
+        DriverLocationRef = FirebaseDatabase.getInstance().getReference().child("Mechanics Working");
 
 
 
@@ -173,10 +173,10 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
 
                     if (driverFound != null)
                     {
-                        DriversRef = FirebaseDatabase.getInstance().getReference()
-                                .child("Users").child("Drivers").child(driverFoundID).child("CustomerRideID");
+                        MechanicsRef = FirebaseDatabase.getInstance().getReference()
+                                .child("Users").child("Mechanics").child(driverFoundID).child("CustomerRideID");
 
-                        DriversRef.removeValue();
+                        MechanicsRef.removeValue();
 
                         driverFoundID = null;
                     }
@@ -246,10 +246,10 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
 
                     //we tell driver which customer he is going to have
 
-                    DriversRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundID);
-                    HashMap driversMap = new HashMap();
-                    driversMap.put("CustomerRideID", customerID);
-                    DriversRef.updateChildren(driversMap);
+                    MechanicsRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Mechanics").child(driverFoundID);
+                    HashMap MechanicsMap = new HashMap();
+                    MechanicsMap.put("CustomerRideID", customerID);
+                    MechanicsRef.updateChildren(MechanicsMap);
 
                     //Show driver location on customerMapActivity
                     GettingDriverLocation();
@@ -538,7 +538,7 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
     private void getAssignedDriverInformation()
     {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
-                .child("Users").child("Drivers").child(driverFoundID);
+                .child("Users").child("Mechanics").child(driverFoundID);
 
         reference.addValueEventListener(new ValueEventListener() {
             @Override

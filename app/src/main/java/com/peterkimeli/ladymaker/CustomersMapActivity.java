@@ -288,7 +288,7 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
 
 
 
-    //and then we get to the driver location - to tell customer where is the driver
+    //and then we get to the mechanic location - to tell customer where is the mechanic
     private void GettingDriverLocation()
     {
         DriverLocationRefListner = DriverLocationRef.child(driverFoundID).child("l")

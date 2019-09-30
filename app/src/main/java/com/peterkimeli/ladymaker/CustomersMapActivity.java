@@ -58,9 +58,9 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class CustomersMapActivity extends FragmentActivity implements OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,
+public class CustomersMapActivity extends FragmentActivity implements OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-
         com.google.android.gms.location.LocationListener{
 
     private GoogleMap mMap;
@@ -251,7 +251,7 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
                     MechanicsMap.put("CustomerRideID", customerID);
                     MechanicsRef.updateChildren(MechanicsMap);
 
-                    //Show driver location on customerMapActivity
+                    //Show mechanic location on customerMapActivity
                     GettingDriverLocation();
                     CallCabCarButton.setText("Looking for Mechanic Location...");
                 }

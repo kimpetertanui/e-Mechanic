@@ -441,10 +441,14 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
                 if (grantResults.length > 0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
                     //mapFragment.getMapAsync(this);
                     mMap.setMyLocationEnabled(true);
-//                    if (ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION ==PackageManager.PERMISSION_GRANTED)){
-//                       // mFusedLocationClient.removeLocationUpdates(locationRequest,mLocationCallback, Looper.myLooper());
-//                        mMap.setMyLocationEnabled(true);
-//                    }
+                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                            android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                    {
+                        //
+
+                        return;
+                    }
                 }
                 else {
                     Toast.makeText(getApplicationContext(),"please provide permission",Toast.LENGTH_LONG).show();
@@ -501,7 +505,7 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
 
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
     }
 
 
@@ -509,8 +513,8 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
     protected synchronized void buildGoogleApiClient()
     {
         googleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this)
-                .addOnConnectionFailedListener((GoogleApiClient.OnConnectionFailedListener) this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
 

@@ -509,8 +509,11 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
-        mMap.addMarker(new MarkerOptions().position(latLng).title(String.valueOf(LastLocation)));
+        mMap.addMarker(new MarkerOptions().position(latLng).title("My Location"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+
+
     }
 
 

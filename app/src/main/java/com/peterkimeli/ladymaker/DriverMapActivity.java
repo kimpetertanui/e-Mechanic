@@ -11,6 +11,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -479,7 +480,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
             mMap.addMarker(new MarkerOptions().position(latLng).title("My Location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
 
             String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -589,6 +590,20 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                         Picasso.get().load(image).into(profilePic);
                     }
                 }
+
+                relativeLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent callIntent = new Intent(Intent.ACTION_CALL);
+                        callIntent.setData(Uri.parse("tel:0377778888"));
+
+                        if (ActivityCompat.checkSelfPermission(DriverMapActivity.this,
+                                Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        startActivity(callIntent);
+                    }
+                });
 
 //                else {
 //

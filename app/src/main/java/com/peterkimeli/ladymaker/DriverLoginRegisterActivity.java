@@ -38,11 +38,11 @@ public class DriverLoginRegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_login_register);
-
         mAuth=FirebaseAuth.getInstance();
+//
 //        onlineDriverID=mAuth.getCurrentUser().getUid();
-        //DriverDatabaseRef=FirebaseDatabase.getInstance().getReference().
-             //   child("Users").child("Customers").child(onlineDriverID);
+//        DriverDatabaseRef=FirebaseDatabase.getInstance().getReference().
+//                child("Users").child("Customers").child(onlineDriverID);
 
 
 

@@ -2,31 +2,29 @@ package com.peterkimeli.ladymaker;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.RoutingListener;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApi;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -51,23 +49,23 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.annotations.Nullable;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.google.android.gms.common.api.GoogleApiClient.*;
-
 
 public class DriverMapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
 
-        com.google.android.gms.location.LocationListener {
+        com.google.android.gms.location.LocationListener,
+        RoutingListener {
 
     private GoogleMap mMap;
    // private FusedLocationProviderClient fusedLocationClient;
     GoogleApiClient googleApiClient;
-    Location lastLocation;
+    Location LastLocation;
     Location mLastLocation;
     LocationRequest locationRequest;
     LocationRequest mLocationRequest;
@@ -158,14 +156,14 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             }
         });
 //        getAssignedCustomerInformation();
-        GetAssignedCustomerRequeest();
+        getAssignedCustomersRequest();
 
         ///buildGoogleaApiClient();
         //fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
     }
 
-    private void GetAssignedCustomerRequeest()
+    private void getAssignedCustomersRequest()
     {
         AssignedCustomerRef=FirebaseDatabase.getInstance().getReference().child("Users").child("Mechanics")
                 .child(driverID).child("CustomerRideID");
@@ -176,9 +174,15 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             {
                 if (dataSnapshot.exists())
                 {
-                    customerID= Objects.requireNonNull(dataSnapshot.getValue()).toString();
-
+//                    customerID= Objects.requireNonNull(dataSnapshot.getValue()).toString();
+////
+////                    GetAssignedCustomerPickUpLocation();
+                    customerID = dataSnapshot.getValue().toString();
+                    //getting assigned customer location
                     GetAssignedCustomerPickUpLocation();
+
+                    relativeLayout.setVisibility(View.VISIBLE);
+                    getAssignedCustomerInformation();
 
                 }
 
@@ -191,7 +195,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
                         AssignedCustomerPickUpRef.removeEventListener(AssignedCustomerPickUpRefListener);
                     }
                     relativeLayout.setVisibility(View.GONE);
-                    getAssignedCustomerInformation();
+//                    getAssignedCustomerInformation();
 
                 }
 
@@ -280,6 +284,9 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+        else{
+            checkLocationPermission();
+        }
 
         buildGoogleApiClient();
         mMap.setMyLocationEnabled(true);
@@ -308,14 +315,14 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             for (Location location: locationResult.getLocations()){
                 if (getApplication() !=null)
                 {
-                    lastLocation= location;
+                    LastLocation = location;
                     LatLng latLng= new LatLng(location.getLatitude(),location.getLongitude());
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
 
                     String userID= FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-                    DatabaseReference  DriverAvailabilityRef= FirebaseDatabase.getInstance().getReference().child("  Mechanics Available");
+                    DatabaseReference  DriverAvailabilityRef= FirebaseDatabase.getInstance().getReference().child("Mechanics Available");
                     GeoFire geoFireAvailability= new GeoFire(DriverAvailabilityRef);
 
                     DatabaseReference DriverWorkingRef=FirebaseDatabase.getInstance().getReference().child("Mechanics Working");
@@ -438,18 +445,64 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     @Override
     public void onLocationChanged(Location location)
     {
+//
         //getting the updated location
-        lastLocation = location;
+//        LastLocation = location;
+//
+//        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+//
+//        String UserID=FirebaseAuth.getInstance().getCurrentUser().getUid();
+//        DatabaseReference DriverAvailabilityRef =FirebaseDatabase.getInstance().getReference().child("Mechanics Available");
+//        GeoFire geoFire= new GeoFire(DriverAvailabilityRef);
+//        geoFire.setLocation(UserID,new GeoLocation(location.getLatitude(),location.getLongitude()));
+//
+//        switch (customerID)
+//        {
+//            case "":
+//                geoFireWorking.removeLocation(userID);
+//                geoFireAvailability.setLocation(userID, new GeoLocation(location.getLatitude(), location.getLongitude()));
+//                break;
+//
+//            default:
+//                geoFireAvailability.removeLocation(userID);
+//                geoFireWorking.setLocation(userID, new GeoLocation(location.getLatitude(), location.getLongitude()));
+//                break;
+//        }
+        if(getApplicationContext() != null)
+        {
+            //getting the updated location
+            LastLocation = location;
 
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+            mMap.addMarker(new MarkerOptions().position(latLng).title("My Location"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
 
-        String UserID=FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference DriverAvailabilityRef =FirebaseDatabase.getInstance().getReference().child("Mechanics Available");
 
-        GeoFire geoFire= new GeoFire(DriverAvailabilityRef);
-        geoFire.setLocation(UserID,new GeoLocation(location.getLatitude(),location.getLongitude()));
+            String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            DatabaseReference DriversAvailabilityRef = FirebaseDatabase.getInstance().getReference().child("Mechanics Available");
+            GeoFire geoFireAvailability = new GeoFire(DriversAvailabilityRef);
+
+            DatabaseReference DriversWorkingRef = FirebaseDatabase.getInstance().getReference().child("Mechanics Working");
+            GeoFire geoFireWorking = new GeoFire(DriversWorkingRef);
+
+            switch (customerID)
+            {
+                case "":
+                    geoFireWorking.removeLocation(userID);
+                    geoFireAvailability.setLocation(userID, new GeoLocation(location.getLatitude(), location.getLongitude()));
+                    break;
+
+                default:
+                    geoFireAvailability.removeLocation(userID);
+                    geoFireWorking.setLocation(userID, new GeoLocation(location.getLatitude(), location.getLongitude()));
+                    break;
+            }
+        }
 
     }
 
@@ -457,8 +510,8 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
     protected synchronized void buildGoogleApiClient()
     {
         googleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) this)
-                .addOnConnectionFailedListener((GoogleApiClient.OnConnectionFailedListener) this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
 
@@ -486,7 +539,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
      private void connectDriver(){
 
         checkLocationPermission();
-        // mFusedLocationClient.removeLocationUpdates(locationRequest,mLocationCallback, Looper.myLooper());
+         //mFusedLocationClient.removeLocationUpdates(locationRequest,mLocationCallback, Looper.myLooper());
          mMap.setMyLocationEnabled(true);
 
 
@@ -498,7 +551,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
             mFusedLocationClient.removeLocationUpdates((com.google.android.gms.location.LocationCallback) mLocationCallback);
         }
         String userID= FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference  DriverAvailabilityRef= FirebaseDatabase.getInstance().getReference().child("  Mechanics Available");
+        DatabaseReference  DriverAvailabilityRef= FirebaseDatabase.getInstance().getReference().child("Mechanics Available");
         GeoFire geoFire= new GeoFire(DriverAvailabilityRef);
         geoFire.removeLocation(userID);
 
@@ -514,6 +567,7 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
     private void getAssignedCustomerInformation()
     {
+        relativeLayout.setVisibility(View.VISIBLE);
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference()
                 .child("Users").child("Customers").child(customerID);
 
@@ -558,6 +612,26 @@ public class DriverMapActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onRoutingFailure(RouteException e) {
+        
+    }
+
+    @Override
+    public void onRoutingStart() {
+
+    }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> arrayList, int i) {
+
+    }
+
+    @Override
+    public void onRoutingCancelled() {
 
     }
 }

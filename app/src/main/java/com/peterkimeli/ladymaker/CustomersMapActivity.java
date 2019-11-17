@@ -101,16 +101,12 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customers_map);
 
-
-
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         customerID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         CustomerDatabaseRef = FirebaseDatabase.getInstance().getReference().child("Customer Requests");
         DriverAvailableRef = FirebaseDatabase.getInstance().getReference().child("Mechanics Available");
         DriverLocationRef = FirebaseDatabase.getInstance().getReference().child("Mechanics Working");
-
-
 
         Logout = (Button) findViewById(R.id.logout_customer_btn);
         SettingsButton = (Button) findViewById(R.id.settings_customer_btn);
@@ -244,7 +240,7 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
                     driverFoundID = key;
 
 
-                    //we tell driver which customer he is going to have
+                    //we tell mechanic which customer he is going to have
 
                     MechanicsRef = FirebaseDatabase.getInstance().getReference().child("Users").child("Mechanics").child(driverFoundID);
                     HashMap MechanicsMap = new HashMap();
@@ -337,14 +333,14 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
 
                             if (Distance < 90)
                             {
-                                CallCabCarButton.setText("Driver's Reached");
+                                CallCabCarButton.setText("Mechanic Reached");
                             }
                             else
                             {
-                                CallCabCarButton.setText("Driver Found: " + String.valueOf(Distance));
+                                CallCabCarButton.setText("Mechanic Found: " + String.valueOf(Distance));
                             }
 
-                            DriverMarker = mMap.addMarker(new MarkerOptions().position(DriverLatLng).title("your driver is here").icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
+                            DriverMarker = mMap.addMarker(new MarkerOptions().position(DriverLatLng).title("your mechanic is here").icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
                         }
                     }
 
@@ -367,9 +363,13 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+        else{
+            checkLocationPermission();
+           }
 
         buildGoogleApiClient();
-        mMap.setMyLocationEnabled(true);
+        mFusedLocationClient.requestLocationUpdates(locationRequest, (com.google.android.gms.location.LocationCallback) mLocationCallback, Looper.myLooper());
+    mMap.setMyLocationEnabled(true);
     }
 //public void onMapReady(GoogleMap googleMap) {
 //    mMap = googleMap;
@@ -382,7 +382,8 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
 //    if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
 //        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
 //
-//        }else{
+//        }
+//        else{
 //            checkLocationPermission();
 //        }
 //    }
@@ -402,8 +403,10 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
 
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                     mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-//                    if(!driverFound)
-//                        getClosetDriverCab();
+                    if(!driverFound)
+                    {
+                        getClosetDriverCab();
+                    }
                 }
             }
         }
@@ -505,7 +508,9 @@ public class CustomersMapActivity extends FragmentActivity implements OnMapReady
 
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+        mMap.addMarker(new MarkerOptions().position(latLng).title(String.valueOf(LastLocation)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
 
